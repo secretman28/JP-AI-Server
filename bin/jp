@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+set -euo pipefail
 MODELS=/etc/jp-ai/models.json
 API=http://127.0.0.1:11434
 hf(){ jq -r --arg k "$1" '.[$k].hf // empty' "$MODELS"; }
 case "${1:-help}" in
  doctor) jp-doctor ;;
- status) systemctl --no-pager status jp-llama-router.service || true; systemctl --no-pager status jp-stack.service || true ;;
- gpu) nvidia-smi ;;
- models) jq -r 'to_entries[] | "\(.key): \(.value.name) -> \(.value.hf)"' "$MODELS"; echo; curl -fsS "$API/v1/models" | jq -r '.data[]?.id' || true ;;
- pull) key="${2:-}"; model="$(hf "$key")"; [[ -n $model ]] || { echo "Modèle inconnu"; exit 1; }; curl -fsS -X POST "$API/models" -H 'Content-Type: application/json' -d "$(jq -nc --arg model "$model" '{model:$model}')" | jq ;;
- logs) sudo journalctl -u jp-llama-router.service -f ;;
- restart) sudo systemctl restart jp-llama-router.service jp-stack.service ;;
- update) git -C "$HOME/llama.cpp" pull; cmake -S "$HOME/llama.cpp" -B "$HOME/llama.cpp/build" -G Ninja -DGGML_CUDA=ON -DCMAKE_BUILD_TYPE=Release; cmake --build "$HOME/llama.cpp/build" -j"$(nproc)" --target llama-server llama-cli llama-bench; sudo systemctl restart jp-llama-router.service ;;
  benchmark) jp-benchmark ;;
- install-codebase-memory) jp-codebase-memory-install ;;
- backup) ts=$(date +%Y%m%d-%H%M%S); out="/mnt/AI/backups/jp-ai-$ts.tar.gz"; sudo tar -czf "$out" /etc/jp-ai "$HOME/jp-ai-stack/docker-compose.yml" /mnt/AI/docker/searxng/config/settings.yml; sudo chown "$USER:$USER" "$out"; echo "$out" ;;
- help|*) echo 'jp doctor|status|gpu|models|pull <qwen|glm|deepseek|coder>|logs|restart|update|benchmark|install-codebase-memory|backup' ;;
+ status) systemctl --no-pager status jp-llama-router; sudo docker ps ;;
+ models) curl -fsS "$API/models?reload=1" | jq ;;
+ pull) m="$(hf "${2:-}")"; [[ -n "$m" ]] || exit 1; curl -fsS -X POST "$API/models" -H 'Content-Type: application/json' -d "$(jq -nc --arg model "$m" '{model:$model}')" | jq ;;
+ load) m="$(hf "${2:-}")"; [[ -n "$m" ]] || exit 1; curl -fsS -X POST "$API/models/load" -H 'Content-Type: application/json' -d "$(jq -nc --arg model "$m" '{model:$model}')" | jq ;;
+ unload) m="$(hf "${2:-}")"; [[ -n "$m" ]] || exit 1; curl -fsS -X POST "$API/models/unload" -H 'Content-Type: application/json' -d "$(jq -nc --arg model "$m" '{model:$model}')" | jq ;;
+ logs) sudo journalctl -u jp-llama-router -f ;;
+ update) git -C "$HOME/JP-AI-Server" pull; sudo rm -f /var/lib/jp-ai/state/05-llama.done /var/lib/jp-ai/state/07-services.done; "$HOME/JP-AI-Server/install.sh" ;;
+ backup) t="$(date +%Y%m%d-%H%M%S)"; sudo tar -czf "/mnt/AI/backups/jp-ai-$t.tar.gz" /etc/jp-ai /opt/jp-ai ;;
+ install-codebase-memory) curl -fsSL https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh | bash ;;
+ *) echo "jp doctor|status|models|pull|load|unload|logs|benchmark|update|backup|install-codebase-memory" ;;
 esac

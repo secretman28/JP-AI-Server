@@ -1,53 +1,39 @@
-# JP AI Server
+# JP AI Server v3
 
-Installation reproductible pour Ubuntu Server 26.04 LTS, 3× Tesla V100, TrueNAS NFS, llama.cpp, Open WebUI et SearXNG.
-
-## Choix retenus
-
-- Qwen General
-- GLM Heretic Code
-- DeepSeek Reasoning
-- Qwen Code Agent
-- un seul gros modèle chargé à la fois (`--models-max 1`)
-- SearXNG activé
-- Codebase Memory MCP optionnel
-- aucun n8n ni lecteur PDF pour le moment
+Installateur modulaire et reprenable pour Ubuntu Server 26.04, 3x Tesla V100,
+TrueNAS NFS, llama.cpp, Open WebUI, SearXNG et Codebase Memory MCP.
 
 ## Installation
 
 ```bash
-git clone https://github.com/secretman28/JP-AI-Server.git
+git clone git@github.com:secretman28/JP-AI-Server.git
 cd JP-AI-Server
+cp config/server.env.example config/server.env
+nano config/server.env
 chmod +x install.sh
 ./install.sh
-sudo reboot
 ```
 
-## Après reboot
+Chaque étape terminée est enregistrée dans `/var/lib/jp-ai/state`. Relancer
+`./install.sh` reprend automatiquement après la dernière étape réussie.
+
+## Commandes
 
 ```bash
 jp doctor
 jp status
 jp models
-```
-
-## Télécharger les modèles
-
-```bash
 jp pull qwen
 jp pull glm
 jp pull deepseek
 jp pull coder
+jp load qwen
+jp unload qwen
+jp benchmark
+jp backup
+jp update
+jp install-codebase-memory
 ```
 
-Commence par Qwen seulement. Les autres peuvent être téléchargés plus tard.
-
-## Interfaces
-
-- Open WebUI: `http://IP_VM:3000`
-- SearXNG: `http://IP_VM:8080`
-- API llama.cpp: `http://IP_VM:11434/v1`
-
-## Stockage TrueNAS
-
-Le partage NFS doit déjà être monté et écrivable sur `/mnt/AI`.
+Le routeur llama.cpp utilise `--models-max 1`: un seul gros modèle est chargé
+en VRAM à la fois.

@@ -1,26 +1,18 @@
 {
   "qwen": {
     "name": "Qwen General",
-    "hf": "unsloth/Qwen3.6-35B-A3B-GGUF:Q5_K_M",
-    "ctx": 32768,
-    "reasoning": "off"
+    "hf": "unsloth/Qwen3.6-35B-A3B-GGUF:Q5_K_M"
   },
   "glm": {
     "name": "GLM Heretic Code",
-    "hf": "DavidAU/GLM-4.7-Flash-Uncensored-Heretic-NEO-CODE-Imatrix-MAX-GGUF:Q4_K_M",
-    "ctx": 16384,
-    "reasoning": "off"
+    "hf": "DavidAU/GLM-4.7-Flash-Uncensored-Heretic-NEO-CODE-Imatrix-MAX-GGUF:Q4_K_M"
   },
   "deepseek": {
     "name": "DeepSeek Reasoning",
-    "hf": "bartowski/DeepSeek-R1-Distill-Qwen-32B-GGUF:Q4_K_M",
-    "ctx": 16384,
-    "reasoning": "on"
+    "hf": "bartowski/DeepSeek-R1-Distill-Qwen-32B-GGUF:Q4_K_M"
   },
   "coder": {
     "name": "Qwen Code Agent",
-    "hf": "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:UD-Q4_K_XL",
-    "ctx": 32768,
-    "reasoning": "off"
+    "hf": "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:UD-Q4_K_XL"
   }
 }
