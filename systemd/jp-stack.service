@@ -1,0 +1,16 @@
+[Unit]
+Description=JP AI Open WebUI and SearXNG
+After=docker.service network-online.target jp-llama-router.service
+Requires=docker.service
+RequiresMountsFor=/mnt/AI
+[Service]
+Type=oneshot
+User=__USER__
+Group=__USER__
+WorkingDirectory=__HOME__/jp-ai-stack
+ExecStart=/usr/bin/docker compose up -d
+ExecStop=/usr/bin/docker compose down
+RemainAfterExit=yes
+TimeoutStartSec=0
+[Install]
+WantedBy=multi-user.target

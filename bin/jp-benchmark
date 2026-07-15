@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+echo '=== GPU ==='; nvidia-smi --query-gpu=index,name,memory.total,temperature.gpu,power.limit --format=csv
+if [[ -x $HOME/llama.cpp/build/bin/llama-bench ]]; then echo '=== llama-bench disponible ==='; else echo 'llama-bench absent'; fi
+echo '=== NFS write/read 2 GiB ==='; f=/mnt/AI/temp/jp-bench.bin; dd if=/dev/zero of="$f" bs=1M count=2048 conv=fdatasync status=progress; dd if="$f" of=/dev/null bs=1M status=progress; rm -f "$f"

@@ -1,0 +1,17 @@
+[Unit]
+Description=JP AI llama.cpp multi-model router
+After=network-online.target
+Wants=network-online.target
+RequiresMountsFor=/mnt/AI
+[Service]
+Type=simple
+User=__USER__
+Group=__USER__
+WorkingDirectory=__HOME__/llama.cpp
+Environment=LLAMA_CACHE=/mnt/AI/models/llama-cache
+ExecStart=__HOME__/llama.cpp/build/bin/llama-server --host 0.0.0.0 --port 11434 --models-preset /etc/jp-ai/models.ini --models-max 1 --models-autoload --metrics
+Restart=always
+RestartSec=10
+LimitNOFILE=1048576
+[Install]
+WantedBy=multi-user.target

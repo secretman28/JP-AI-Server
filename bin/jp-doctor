@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -u
+ok(){ echo "[OK]   $*"; }; bad(){ echo "[FAIL] $*"; }; warn(){ echo "[WARN] $*"; }
+mountpoint -q /mnt/AI && ok '/mnt/AI monté' || bad '/mnt/AI non monté'
+[[ -w /mnt/AI ]] && ok '/mnt/AI écrivable' || bad '/mnt/AI non écrivable'
+if command -v nvidia-smi >/dev/null; then n=$(nvidia-smi --query-gpu=index --format=csv,noheader | wc -l); [[ $n -eq 3 ]] && ok '3 V100 visibles' || warn "$n GPU visibles"; else bad 'nvidia-smi absent'; fi
+systemctl is-active --quiet jp-llama-router && ok 'llama router actif' || bad 'llama router arrêté'
+systemctl is-active --quiet jp-stack && ok 'stack Docker active' || bad 'stack Docker arrêtée'
+curl -fsS http://127.0.0.1:11434/health >/dev/null 2>&1 && ok 'API LLM répond' || warn 'API LLM pas prête'
+curl -fsS 'http://127.0.0.1:8080/search?q=test&format=json' >/dev/null 2>&1 && ok 'SearXNG répond' || warn 'SearXNG ne répond pas'
+curl -fsS http://127.0.0.1:3000 >/dev/null 2>&1 && ok 'Open WebUI répond' || warn 'Open WebUI ne répond pas'

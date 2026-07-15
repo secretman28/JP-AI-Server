@@ -1,0 +1,29 @@
+services:
+  valkey:
+    image: valkey/valkey:8-alpine
+    container_name: jp-valkey
+    restart: unless-stopped
+    volumes:
+      - /mnt/AI/docker/searxng/valkey:/data
+  searxng:
+    image: searxng/searxng:latest
+    container_name: jp-searxng
+    restart: unless-stopped
+    depends_on: [valkey]
+    ports: ["8080:8080"]
+    volumes:
+      - /mnt/AI/docker/searxng/config:/etc/searxng
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: jp-open-webui
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /mnt/AI/docker/open-webui:/app/backend/data
+    environment:
+      OPENAI_API_BASE_URL: http://127.0.0.1:11434/v1
+      OPENAI_API_KEY: local
+      WEBUI_NAME: JP AI Server
+      ENABLE_WEB_SEARCH: "true"
+      WEB_SEARCH_ENGINE: searxng
+      SEARXNG_QUERY_URL: http://127.0.0.1:8080/search?q=<query>&format=json

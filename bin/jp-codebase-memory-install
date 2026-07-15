@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+tmp=$(mktemp -d); cd "$tmp"
+url=$(curl -fsSL https://api.github.com/repos/DeusData/codebase-memory-mcp/releases/latest | jq -r '.assets[] | select(.name|test("linux.*x86_64.*tar.gz$";"i")) | .browser_download_url' | head -1)
+[[ -n $url && $url != null ]] || { echo 'Release Linux x86_64 introuvable'; exit 1; }
+curl -fL "$url" -o pkg.tar.gz; tar xzf pkg.tar.gz
+installer=$(find . -name install.sh -type f | head -1); [[ -n $installer ]] || { echo 'install.sh introuvable'; exit 1; }
+chmod +x "$installer"; "$installer"
+mkdir -p /mnt/AI/projects /mnt/AI/codebase-memory
+echo 'Installé. Dossier projets: /mnt/AI/projects'
