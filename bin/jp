@@ -8,7 +8,9 @@ case "${1:-help}" in
  benchmark) jp-benchmark ;;
  status) systemctl --no-pager status jp-llama-router; sudo docker ps ;;
  models) curl -fsS "$API/models?reload=1" | jq ;;
- pull) m="$(hf "${2:-}")"; [[ -n "$m" ]] || exit 1; curl -fsS -X POST "$API/models" -H 'Content-Type: application/json' -d "$(jq -nc --arg model "$m" '{model:$model}')" | jq ;;
+ pull)
+   jp-model-pull "${2:-}"
+   ;;
  load) m="$(hf "${2:-}")"; [[ -n "$m" ]] || exit 1; curl -fsS -X POST "$API/models/load" -H 'Content-Type: application/json' -d "$(jq -nc --arg model "$m" '{model:$model}')" | jq ;;
  unload) m="$(hf "${2:-}")"; [[ -n "$m" ]] || exit 1; curl -fsS -X POST "$API/models/unload" -H 'Content-Type: application/json' -d "$(jq -nc --arg model "$m" '{model:$model}')" | jq ;;
  logs) sudo journalctl -u jp-llama-router -f ;;

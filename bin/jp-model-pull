@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+MODELS="/etc/jp-ai/models.json"
+KEY="${1:-}"
+
+if [[ -z "$KEY" ]]; then
+    echo "Usage: jp pull qwen|glm|deepseek|coder"
+    exit 1
+fi
+
+MODEL="$(jq -r --arg key "$KEY" '.[$key].hf // empty' "$MODELS")"
+
+if [[ -z "$MODEL" ]]; then
+    echo "Modèle inconnu: $KEY"
+    exit 1
+fi
+
+echo "Téléchargement de $MODEL"
+sudo systemctl stop jp-llama-router.service
+
+restart_router() {
+    echo "Redémarrage du routeur..."
+    sudo systemctl start jp-llama-router.service
+}
+trap restart_router EXIT
+
+LLAMA_CACHE=/mnt/AI/models/llama-cache \
+"$HOME/llama.cpp/build/bin/llama-cli" \
+    -hf "$MODEL" \
+    --n-gpu-layers 999 \
+    --split-mode layer \
+    --tensor-split 1,1,1 \
+    --ctx-size 2048 \
+    --n-predict 1 \
+    --prompt "OK"
+
+echo "Téléchargement terminé."
